@@ -35,12 +35,12 @@ public abstract class Account {
     }
 
     /** Deposit with no note (method overloading: same name, different parameters). */
-    public void deposit(double amount) {
+    public final void deposit(double amount) {
         deposit(amount, null);
     }
 
     /** Deposit with a note that is stored on the transaction. */
-    public void deposit(double amount, String note) {
+    public final void deposit(double amount, String note) {
         record(TransactionType.DEPOSIT, amount, note);
     }
 
@@ -58,7 +58,7 @@ public abstract class Account {
     }
 
     /** Shared by deposit, salary and interest so the rules live in one place. */
-    protected void record(TransactionType type, double amount, String note) {
+    protected final void record(TransactionType type, double amount, String note) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Amount must be greater than zero.");
         }

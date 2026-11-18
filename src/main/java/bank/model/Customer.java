@@ -94,10 +94,13 @@ public class Customer {
         return null;
     }
 
-    /** Closes an account. The balance must be withdrawn (zero) first. */
+    /**
+     * Closes an account. The balance must be withdrawn (zero) first. The exception is
+     * a savings account: it allows no withdrawals, so its balance is paid out on closure.
+     */
     public boolean removeAccount(String accountNumber) {
         Account a = findAccount(accountNumber);
-        if (a == null || a.getBalance() > 0) {
+        if (a == null || (a.getBalance() > 0 && !(a instanceof SavingsAccount))) {
             return false;
         }
         return accounts.remove(a);
