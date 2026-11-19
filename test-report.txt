@@ -1,0 +1,70 @@
+INTEGRATION TEST REPORT
+Run on: 2026-11-19T22:29:47
+Java: 27
+
+IT-01  PASS  Database set-up and sample data
+      Steps    : Create the tables from schema.sql, then load the sample customers.
+      Expected : 10 customers stored, with their accounts and transactions in the three tables.
+      Actual   : 10 customers, 19 accounts, 37 transactions stored (no duplicates after seeding twice).
+
+IT-02  PASS  Login with correct details
+      Steps    : LoginController.login("thabo", "pass123").
+      Expected : The customer is read from the database with all 3 accounts.
+      Actual   : Logged in as C001 Thabo Molefe (thabo) with 3 accounts loaded from the database.
+
+IT-03  PASS  Login with wrong details and lockout
+      Steps    : Wrong password, blank fields, then 3 wrong attempts for neo followed by the right password.
+      Expected : Each is refused with a clear message; after 3 failures even the right password is blocked.
+      Actual   : "Invalid username or password." / "Enter both username and password." / "Too many failed attempts. Restart the application to try again."
+
+IT-04  PASS  Deposit is saved in the database
+      Steps    : Login as thabo, deposit BWP 100.00 into SAV-1001, then read the database again.
+      Expected : Balance rises from 1500.75 to 1600.75 and a DEPOSIT transaction of 100.00 is stored.
+      Actual   : SAV-1001 balance in database: BWP 1600.75; last transaction DEPOSIT BWP 100.00.
+
+IT-05  PASS  Withdrawal from an investment account
+      Steps    : Withdraw BWP 300.00 from INV-1002, then read the database again.
+      Expected : Balance falls from 2047.50 to 1747.50 and a WITHDRAWAL transaction is stored.
+      Actual   : INV-1002 balance in database: BWP 1747.50.
+
+IT-06  PASS  Business rules block invalid withdrawals
+      Steps    : Withdraw from the savings account SAV-1001; withdraw BWP 99999 from CHQ-1003; deposit -5.
+      Expected : All three are refused with a message and the balances in the database do not change.
+      Actual   : "Withdrawals are not allowed from a savings account." / "Insufficient funds." / "Amount must be greater than zero."; balances unchanged in the database.
+
+IT-07  PASS  Salary credit to a cheque account
+      Steps    : Credit a salary of BWP 1500.00 to CHQ-1003; also try crediting a salary to a savings account.
+      Expected : Cheque balance rises from 7300.00 to 8800.00 with a SALARY transaction; the savings request is refused.
+      Actual   : CHQ-1003 balance in database: BWP 8800.00; savings salary refused ("A salary can only be credited to a cheque account.").
+
+IT-08  PASS  Monthly interest
+      Steps    : Run monthly interest for kagiso (cheque + investment) and boitumelo (savings + investment).
+      Expected : Investment earns 5% (5250.00 -> 5512.50), savings 0.05% (800.40 -> 800.80), cheque earns nothing.
+      Actual   : Kagiso investment BWP 5512.50, cheque unchanged BWP 10500.00; Boitumelo savings BWP 800.80.
+
+IT-09  PASS  Rules for opening accounts
+      Steps    : As neo (not employed): open a cheque account, an investment with BWP 100, then an investment with BWP 600. As thabo: open a 4th account.
+      Expected : The first, second and fourth are refused; the BWP 600 investment is opened and stored with a new unique number.
+      Actual   : Refused: "A cheque account can only be opened for an employed customer." / "An investment account needs an opening deposit of at least BWP 500.00." / "A customer can hold at most 3 accounts.". Opened INV-1020 with BWP 600.00.
+
+IT-10  PASS  Registration and login of a new customer
+      Steps    : Register an employed customer, log in with the new details, then try the same username again.
+      Expected : Customer C011 is saved and can log in; the duplicate username is refused.
+      Actual   : C011 saved and logged in; password stored as a hash; duplicate refused ("That username is already taken.").
+
+IT-11  PASS  Closing an account
+      Steps    : Withdraw everything from neo's INV-1020 and close it; close the savings account SAV-1004 that still has money.
+      Expected : Both accounts are deleted from the database together with their transactions; the savings balance is paid out.
+      Actual   : Closing a non-empty investment account refused; both accounts then deleted with their transactions; savings balance paid out: BWP 420.00.
+
+IT-12  PASS  Database constraints protect the data
+      Steps    : Insert rows that break the rules directly with SQL: second savings account, missing customer, negative balance.
+      Expected : The database itself rejects all three.
+      Actual   : UNIQUE (customer, type), FOREIGN KEY and CHECK (balance >= 0) all rejected the invalid rows.
+
+IT-13  PASS  Full user journey across all layers
+      Steps    : Register, log in, open cheque and investment accounts, credit salary, withdraw, run interest, log out, then log in again with new objects.
+      Expected : After logging in again the balances (cheque 5000.00, investment 840.00) and transaction histories are exactly as left.
+      Actual   : C012 journey saved: cheque BWP 5000.00 (1 transaction), investment BWP 840.00 (3 transactions: opening deposit, withdrawal, interest).
+
+SUMMARY: 13 of 13 tests passed.

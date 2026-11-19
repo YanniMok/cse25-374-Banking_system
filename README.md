@@ -22,6 +22,11 @@ constraint mirror the business rules. 10 sample customers are added when the dat
 - Database demo (CRUD with the 10 sample customers): `mvn compile exec:java -Dexec.mainClass=bank.DatabaseDemo`
 - Model demo: `mvn compile exec:java`
 
+## Integration test
+`src/test/java/bank/IntegrationTest.java` runs 13 tests through the controllers, model and SQLite database
+(it uses its own `integration-test.db`). In IntelliJ, open the file and click the green arrow next to `main()`.
+Results are printed and saved in `test-report.txt`.
+
 ## Sample logins (10 customers)
 Password `pass123` for all, except `neo` (`secret1`).
 
