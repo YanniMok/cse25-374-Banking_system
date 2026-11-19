@@ -23,6 +23,21 @@ public class InMemoryCustomerDAO implements CustomerDAO {
     }
 
     @Override
+    public Customer findById(String customerId) {
+        for (Customer c : customers.values()) {
+            if (c.getCustomerID().equals(customerId)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void delete(String customerId) {
+        customers.values().removeIf(c -> c.getCustomerID().equals(customerId));
+    }
+
+    @Override
     public List<Customer> findAll() {
         return new ArrayList<>(customers.values());
     }

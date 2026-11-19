@@ -1,5 +1,8 @@
 package bank.model;
 
+import java.time.LocalDate;
+import java.util.List;
+
 /**
  * Cheque account: used for salaries; deposits and withdrawals of any amount.
  * It earns no interest, so it does not implement InterestBearing.
@@ -14,6 +17,17 @@ public class ChequeAccount extends Account {
     /** Credits a salary payment from the customer's employer. */
     public void creditSalary(double amount) {
         record(TransactionType.SALARY, amount, "Salary");
+    }
+
+    private ChequeAccount(String accountNumber, String branch, double balance,
+                  LocalDate openDate, List<Transaction> history) {
+        super(accountNumber, branch, balance, openDate, history);
+    }
+
+    /** Rebuilds an account that was saved earlier (used by the database layer). */
+    public static ChequeAccount fromDatabase(String accountNumber, String branch, double balance,
+                                     LocalDate openDate, List<Transaction> history) {
+        return new ChequeAccount(accountNumber, branch, balance, openDate, history);
     }
 
     @Override

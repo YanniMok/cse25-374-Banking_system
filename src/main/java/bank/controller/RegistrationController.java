@@ -27,7 +27,7 @@ public class RegistrationController {
         if (dao.findByUsername(name) != null) {
             throw new IllegalArgumentException("That username is already taken.");
         }
-        String id = String.format("C%03d", dao.findAll().size() + 1);
+        String id = String.format("C%03d", nextCustomerNumber());
         // The Customer constructor checks that an employed customer gave employer details.
         Customer customer = new Customer(id, firstName.trim(), surname.trim(), address.trim(),
                 name, password, employed,
@@ -35,6 +35,22 @@ public class RegistrationController {
                 employed ? employerAddress.trim() : null);
         dao.save(customer);
         return customer;
+    }
+
+    /** One more than the highest existing customer number, so IDs never repeat. */
+    private int nextCustomerNumber() {
+        int highest = 0;
+        for (Customer c : dao.findAll()) {
+            String id = c.getCustomerID();
+            if (id.length() > 1 && id.startsWith("C")) {
+                try {
+                    highest = Math.max(highest, Integer.parseInt(id.substring(1)));
+                } catch (NumberFormatException ignored) {
+                    // not an ID we generated; skip it
+                }
+            }
+        }
+        return highest + 1;
     }
 
     private static boolean isBlank(String s) {

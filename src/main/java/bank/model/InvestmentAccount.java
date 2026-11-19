@@ -1,5 +1,8 @@
 package bank.model;
 
+import java.time.LocalDate;
+import java.util.List;
+
 /**
  * Investment account: deposits and withdrawals allowed, 5% interest per month.
  * It can only be opened with an initial deposit of at least BWP 500.00.
@@ -21,6 +24,17 @@ public class InvestmentAccount extends Account implements InterestBearing {
                     MIN_OPENING_DEPOSIT));
         }
         return initialDeposit;
+    }
+
+    private InvestmentAccount(String accountNumber, String branch, double balance,
+                  LocalDate openDate, List<Transaction> history) {
+        super(accountNumber, branch, balance, openDate, history);
+    }
+
+    /** Rebuilds an account that was saved earlier (used by the database layer). */
+    public static InvestmentAccount fromDatabase(String accountNumber, String branch, double balance,
+                                     LocalDate openDate, List<Transaction> history) {
+        return new InvestmentAccount(accountNumber, branch, balance, openDate, history);
     }
 
     @Override

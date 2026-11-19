@@ -34,6 +34,16 @@ public abstract class Account {
         }
     }
 
+    /** Used when an account is loaded back from the database: nothing is recorded again. */
+    protected Account(String accountNumber, String branch, double balance,
+                      LocalDate openDate, List<Transaction> history) {
+        this.accountNumber = accountNumber;
+        this.branch = branch;
+        this.balance = balance;
+        this.openDate = openDate;
+        this.transactions.addAll(history);
+    }
+
     /** Deposit with no note (method overloading: same name, different parameters). */
     public final void deposit(double amount) {
         deposit(amount, null);

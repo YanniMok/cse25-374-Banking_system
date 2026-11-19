@@ -6,8 +6,8 @@ import java.util.List;
 
 /**
  * Data access interface for customers (with their accounts and transactions).
- * Step 6 uses an in-memory version; Step 7 adds a JDBC version behind the same interface,
- * so the controllers and views do not change.
+ * InMemoryCustomerDAO keeps data in memory (useful for quick tests); JdbcCustomerDAO stores it in
+ * the SQLite database. The controllers and views work with either one.
  */
 public interface CustomerDAO {
 
@@ -17,5 +17,11 @@ public interface CustomerDAO {
     /** Returns the customer with this username, or null if there is none. */
     Customer findByUsername(String username);
 
+    /** Returns the customer with this ID, or null if there is none. */
+    Customer findById(String customerId);
+
     List<Customer> findAll();
+
+    /** Deletes the customer together with its accounts and their transactions. */
+    void delete(String customerId);
 }

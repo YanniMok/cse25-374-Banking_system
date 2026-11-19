@@ -4,7 +4,8 @@ import bank.controller.AccountController;
 import bank.controller.LoginController;
 import bank.controller.RegistrationController;
 import bank.dao.CustomerDAO;
-import bank.dao.InMemoryCustomerDAO;
+import bank.dao.DatabaseManager;
+import bank.dao.JdbcCustomerDAO;
 import bank.dao.SampleData;
 import bank.model.Customer;
 import bank.view.AccountView;
@@ -17,7 +18,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Starts the JavaFX application. It creates the data access object and the controllers once,
+ * Starts the JavaFX application. It sets up the SQLite database, then creates the data access object and the controllers once,
  * and switches between the screens (views) when asked through the Navigator interface.
  * Run it with:  mvn javafx:run
  */
@@ -32,8 +33,10 @@ public class BankingApp extends Application implements Navigator {
     public void start(Stage primaryStage) {
         this.stage = primaryStage;
 
-        CustomerDAO dao = new InMemoryCustomerDAO(); // Step 7 swaps this for the JDBC version
-        SampleData.seed(dao);
+        DatabaseManager database = DatabaseManager.forDefaultFile(); // bank.db in the project folder
+        database.initialize();                                       // creates the tables if needed
+        CustomerDAO dao = new JdbcCustomerDAO(database);
+        SampleData.seedIfEmpty(dao);                                  // adds 10 sample customers on first run
         loginController = new LoginController(dao);
         registrationController = new RegistrationController(dao);
         accountController = new AccountController(dao);

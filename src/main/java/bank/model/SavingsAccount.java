@@ -1,5 +1,8 @@
 package bank.model;
 
+import java.time.LocalDate;
+import java.util.List;
+
 /**
  * Savings account: deposits only, no withdrawals, 0.05% interest per month.
  */
@@ -15,6 +18,17 @@ public class SavingsAccount extends Account implements InterestBearing {
     @Override
     public boolean withdraw(double amount) {
         return false;
+    }
+
+    private SavingsAccount(String accountNumber, String branch, double balance,
+                  LocalDate openDate, List<Transaction> history) {
+        super(accountNumber, branch, balance, openDate, history);
+    }
+
+    /** Rebuilds an account that was saved earlier (used by the database layer). */
+    public static SavingsAccount fromDatabase(String accountNumber, String branch, double balance,
+                                     LocalDate openDate, List<Transaction> history) {
+        return new SavingsAccount(accountNumber, branch, balance, openDate, history);
     }
 
     @Override

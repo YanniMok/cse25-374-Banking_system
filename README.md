@@ -3,22 +3,40 @@
 ## Layers (separation of concerns)
 | Package | Role | Rule |
 |---|---|---|
-| `bank.model` | Entity classes: Customer, Account (abstract), SavingsAccount, InvestmentAccount, ChequeAccount, InterestBearing (interface), Transaction | Business rules; no GUI code |
+| `bank.model` | Entity classes: Customer, Account (abstract), SavingsAccount, InvestmentAccount, ChequeAccount, InterestBearing (interface), Transaction | Business rules; no GUI or database code |
 | `bank.view` | Boundary classes: LoginView, RegisterView, AccountView, Navigator | Display and input only; talk to controllers only |
 | `bank.controller` | Control classes: LoginController, RegistrationController, AccountController | Validate input, call the model, call the DAO |
-| `bank.dao` | CustomerDAO (interface), InMemoryCustomerDAO, SampleData | Storage. Step 7 adds a JDBC version behind the same interface |
+| `bank.dao` | CustomerDAO (interface), JdbcCustomerDAO, AccountDAO, TransactionDAO, DatabaseManager, SampleData | All JDBC code lives here |
+| `src/main/resources/schema.sql` | Database schema (SQLite) | |
 | `bank.BankingApp` | JavaFX start-up and screen switching | |
-| `bank.Main` | Console demo of the model | |
+| `bank.Main`, `bank.DatabaseDemo` | Console demos of the model and of the database | |
+
+## Database
+SQLite, stored in one file (`bank.db`, created in the project folder on first run; delete it to reset).
+Tables: `customer`, `account` (one table for all account types, `account_type` says which subclass),
+`transactions`. Foreign keys with ON DELETE CASCADE, CHECK constraints and a UNIQUE (customer, type)
+constraint mirror the business rules. 10 sample customers are added when the database is empty.
 
 ## Run
-- Console demo (works in Codespaces): `mvn compile exec:java`
-- GUI (run on a computer with a screen, JDK 17+ and Maven): `mvn javafx:run`
+- GUI (needs a screen, JDK 17+ and Maven): `mvn javafx:run`
+- Database demo (CRUD with the 10 sample customers): `mvn compile exec:java -Dexec.mainClass=bank.DatabaseDemo`
+- Model demo: `mvn compile exec:java`
 
-## Sample logins
-| Username | Password | Accounts |
+## Sample logins (10 customers)
+Password `pass123` for all, except `neo` (`secret1`).
+
+| Username | Employed | Accounts |
 |---|---|---|
-| thabo | pass123 | Savings, Investment, Cheque (employed) |
-| neo | secret1 | Savings (not employed) |
+| thabo | yes | Savings, Investment, Cheque |
+| neo | no | Savings |
+| lesego | yes | Cheque, Savings |
+| kagiso | yes | Cheque, Investment |
+| boitumelo | no | Savings, Investment |
+| tebogo | yes | Savings, Investment, Cheque |
+| masego | no | Savings |
+| onalenna | yes | Cheque |
+| gofaone | no | Investment, Savings |
+| mpho | yes | Cheque, Investment |
 
 ## Business rules
 - Savings: no withdrawals, 0.05% monthly interest
